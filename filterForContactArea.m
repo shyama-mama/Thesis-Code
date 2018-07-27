@@ -31,7 +31,6 @@ for frameNumber = 1:nFrames
     % Selects the next frame
     croppedFrame = squeeze(croppedVideoArray(frameNumber,:,:,:));  
     
-    %%  ============== GRAYSCALE AND SIZE MEASURING ==================
     
     if size(croppedFrame,3) == 3
         grayFrame = rgb2gray(croppedFrame);
@@ -44,12 +43,10 @@ for frameNumber = 1:nFrames
     % Measures the size of the cropped frame
     [croppedHeight,croppedLength] = size(grayFrame);
 
-    %%  ============== TOP-HAT BAND PASS FILTER ======================
     
     filteredFrame = imtophat(grayFrame,se);
     filteredImageArray(frameNumber,:,:) = filteredFrame;
     
-    %%  ===================== OTSU METHOD ============================
     
     % Calculates brightness threshold with Otsu method and show on screen
 %     if isfield(otsuLevelStruct,'levels')
@@ -87,25 +84,21 @@ for frameNumber = 1:nFrames
         BWFrame = im2bw(real(filteredFrame),level);
     end
     bwImageArray(frameNumber,:,:) = BWFrame;
-    %%  ===================== CLOSING AREA ===========================
         
     % Morphological method to close fill the holes in the contact area
     closedFrame = imclose(BWFrame,se2);
     openFrame = imopen(closedFrame, se2);
 
-    %%  ===================== FLAT BORDER ============================
     
     % Median filter to soften the border
     flatBorderFrame = medfilt2(openFrame,A);
     flatBorderImageArray(frameNumber,:,:) = flatBorderFrame;
     
-    %%  ================ FINGER PAD ISOLATION ========================
         
     % Removes residual areas
     contactAreaFrame = bwareaopen(flatBorderFrame,pixelsThreshold);
     contactLogicalImageArray(frameNumber,:,:) = contactAreaFrame; % HEBA %
     
-    %%  ================== PIXELS MEASUREMENT =========================
         
     % Writes the number of pixels in contact for this frame
     contactPixelsArray(frameNumber) = sum(sum(contactAreaFrame));
